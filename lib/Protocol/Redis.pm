@@ -43,7 +43,7 @@ sub encode {
     my ($self, $message) = @_;
 
     if (my $encoder = $message_type_encoders{$message->{type}}) {
-        $encoder->($self, $message);
+        &$encoder;
     }
     else {
         Carp::croak(qq/Unknown message type $message->{type}/);
@@ -189,7 +189,7 @@ sub _state_bulk_message {
 
             # Nil
             $self->{_cmd}{data} = undef;
-            $bulk_state_cb->($self, $chunk);
+            &$bulk_state_cb;
         }
         else {
             $self->{_state_cb} = $bulk_state_cb;
@@ -246,7 +246,7 @@ sub _state_multibulk_message {
             # Return message
             $self->{_cmd}{type} = '*';
             $self->{_cmd}{data} = $data;
-            $mbulk_state_cb->($self, $chunk);
+            &$mbulk_state_cb;
         }
         else {
 
@@ -265,7 +265,7 @@ sub _state_multibulk_message {
         if ($arguments_num < 1) {
             $mbulk_process = undef;
             $self->{_cmd}{data} = [];
-            $mbulk_state_cb->($self, $chunk);
+            &$mbulk_state_cb;
         }
         else {
 
